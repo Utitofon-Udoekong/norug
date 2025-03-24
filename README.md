@@ -6,10 +6,108 @@
 ![ESLint](https://img.shields.io/badge/ESLint-4B3263?style=for-the-badge&logo=eslint&logoColor=white)
 ![Yarn](https://img.shields.io/badge/yarn-%232C8EBB.svg?style=for-the-badge&logo=yarn&logoColor=white)
 
-# Venn Custom Detector boilerplate
-A boilerplate for getting started with Venn as a Security Provider. Use is as a starting point to build your own custom detectors on Venn Network.
+# Venn Rugpull Detector
 
-> 📚 [What is Venn?](https://docs.venn.build/)
+A custom detector for the Venn Network that analyzes smart contracts for potential rugpull vulnerabilities. This detector helps protect users and protocols by identifying suspicious patterns and high-risk behaviors that could indicate a potential rugpull attack.
+
+## Features
+
+The detector analyzes transactions for the following risk patterns:
+
+### 1. Suspicious Function Calls
+- **Ownership Transfer** (HIGH Risk) - Detects calls to transfer contract ownership
+- **Blacklisting** (HIGH Risk) - Identifies functions that can block user addresses
+- **Contract Pause** (MEDIUM Risk) - Detects pause functionality that could freeze user funds
+- **Self-Destruct** (HIGH Risk) - Identifies self-destruct capabilities that could permanently lock funds
+- **Contract Upgrades** (MEDIUM Risk) - Detects upgrade functions that could change contract behavior
+
+### 2. Token Ownership Concentration
+- Monitors token distribution and alerts when a single address holds more than 50% of the total supply
+- Helps identify potential manipulation risks from whale addresses
+
+### 3. Suspicious State Changes
+- Tracks significant balance changes
+- Alerts on large withdrawals (>80% of balance)
+- Identifies patterns that could indicate a rugpull in progress
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/venn-rugpull-detector.git
+cd venn-rugpull-detector
+
+# Install dependencies
+yarn install
+```
+
+## Usage
+
+### Development Mode
+```bash
+yarn dev
+```
+
+### Production Mode
+```bash
+yarn build
+yarn start
+```
+
+### Docker Deployment
+```bash
+docker build -f Dockerfile . -t venn-rugpull-detector
+docker run -p 3000:3000 venn-rugpull-detector
+```
+
+## Example Detection Scenarios
+
+### Scenario 1: Ownership Transfer Attack
+```json
+{
+  "chainId": 1,
+  "hash": "0x...",
+  "trace": {
+    "calls": [
+      {
+        "input": "0xf2fde38b...", // transferOwnership function signature
+        "from": "0x123...",
+        "to": "0x456..."
+      }
+    ]
+  }
+}
+```
+**Result**: HIGH risk - Ownership transfer detected
+
+### Scenario 2: Token Concentration Risk
+```json
+{
+  "chainId": 1,
+  "hash": "0x...",
+  "trace": {
+    "pre": {
+      "0x123...": { "balance": "600000000000000000000" },
+      "0x456...": { "balance": "400000000000000000000" }
+    }
+  }
+}
+```
+**Result**: HIGH risk - Single address holds 60% of tokens
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
+## Security
+
+This detector is part of the Venn Network's security infrastructure. While it helps identify potential rugpull risks, it should not be the only security measure in place. Always conduct thorough security audits and implement multiple layers of protection.
+
+For real-world examples of transactions that would trigger this detector, please check the test suite.
 
 ## Table of Contents
 - [Introduction](#venn-custom-detector-boilerplate)
